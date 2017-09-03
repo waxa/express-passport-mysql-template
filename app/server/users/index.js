@@ -1,4 +1,4 @@
 module.exports = {
-  model: require('./model'),
+  // model: require('./model'),
   route: require('./route')
 };

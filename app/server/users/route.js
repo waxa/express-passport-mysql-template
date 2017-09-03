@@ -1,4 +1,4 @@
-function init (app) {
+function init (app, dbPool, db) {
   const passport = require('passport');
   const User = require('mongoose').model('User');
 

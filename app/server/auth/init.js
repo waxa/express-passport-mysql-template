@@ -1,62 +1,37 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
-
-const User = require('mongoose').model('User');
-
 const authMiddleware = require('./auth-middleware');
-
 const session = require('express-session');
-const MongoDBStore = require('connect-mongodb-session')(session);
+const MySQLStore = require('express-mysql-session')(session);
 
-function findUser (userToFind, fields, callback) {
-  User.findOne( userToFind, fields )
-  .lean().exec( function (err, user) {
-    if (err) { return callback(err); }
-    if (!user) { return callback(null); }
+
+// function findUser (userToFind, fields, callback) {
+//   User.findOne( userToFind, fields )
+//   .lean().exec( function (err, user) {
+//     if (err) { return callback(err); }
+//     if (!user) { return callback(null); }
+//     return callback(null, user);
+//   });
+// };
+
+function findUser (username, mysqlPool, dbquerys, callback) {
+  console.log("en finduser");
+  mysqlPool.query(dbquerys.users.selectByUsername, [username], function (error, results, fields) {
+    if (error) {
+      return callback(error);
+    }
+    if (results.length != 1) {
+      return callback(null);
+    }
+    var user = {};
+    user.username = results[0].username;
+    console.log('user: ', user);
     return callback(null, user);
   });
 };
 
-function setPassport (app) {
-  app.use(passport.initialize());
-  app.use(passport.session());
-
-  passport.serializeUser(function (user, cb) {
-    cb(null, user.username);
-  });
-
-  passport.deserializeUser(function (username, cb) {
-    findUser({
-      username:username
-    },"_id username", cb);
-  });
-
-  passport.use(new LocalStrategy({
-      usernameField: 'username',
-      passwordField: 'password'
-    },
-    function(username, password, done) {
-      findUser({
-        username: username
-      },
-      "_id username password",
-      function (err, user) {
-        if (err) { return done(err); }
-        if (!user) { return done(null, false); }
-        if (password !== user.password) { return done(null, false); }
-        return done(null, user);
-      });
-    }
-  ));
-
-  passport.authMiddleware = authMiddleware;
-};
-
-function initPassport (app, mongoUri) {
-  var store = new MongoDBStore({
-    uri: mongoUri,
-    collection: 'mySessions'
-  });
+function initPassport (app, dbPool, db) {
+  var store = new MySQLStore(db.conf, dbPool);
 
   // Catch errors
   store.on('error', function(error) {
@@ -72,7 +47,52 @@ function initPassport (app, mongoUri) {
       saveUninitialized: true
   }));
 
-  setPassport(app);
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  passport.serializeUser(function (user, cb) {
+    cb(null, user.username);
+  });
+
+  passport.deserializeUser(function (username, callback) {
+    dbPool.query(db.users.selectByUsername, [username], function (error, results, fields) {
+      if (error) {
+        return callback(error);
+      }
+      if (results.length != 1) {
+        return callback(null);
+      }
+      var user = {};
+      user.username = results[0].username;
+      console.log('user: ', user);
+      return callback(null, user);
+    });
+  });
+
+  passport.use(new LocalStrategy({
+      usernameField: 'username',
+      passwordField: 'password'
+    },
+    function(username, password, done) {
+      dbPool.query(
+        db.users.selectByUsernameAndPassword, [username, password],
+        function (error, results, fields) {
+          if (error) {
+            return done(error);
+          }
+          if (results.length != 1) {
+            return done(null, false);
+          }
+          var user = {};
+          user.username = results[0].username;
+          console.log('user: ', user);
+          return done(null, user);
+        }
+      );
+    }
+  ));
+
+  passport.authMiddleware = authMiddleware;
 };
 
 module.exports = initPassport;
