@@ -1,7 +1,7 @@
 {
-  "name": "node-template-server",
-  "version": "1.0.0",
-  "description": "A basic node express passport mysql template",
+  "name": "Easy List",
+  "version": "0.1.0",
+  "description": "easy lists for everyone",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
