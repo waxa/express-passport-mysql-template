@@ -5,7 +5,7 @@ create database sampledb;
 create user 'sampleuser'@'localhost' identified by 'samplepassword';
 grant all on sampledb.* to 'sampleuser'@'localhost';
 
-use easylistdb;
+use sampledb;
 
 create table users(
 	username varchar(255) not null,
