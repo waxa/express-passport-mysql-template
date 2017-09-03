@@ -9,6 +9,7 @@ db.conf = {
 };
 
 db.users = {};
+db.users.selectAll = "select username from users;";
 db.users.selectByUsernameAndPassword = "select username from users where username = ? and password = ?;";
 db.users.selectByUsername = "select username from users where username = ?;";
 db.users.insert = "insert into users (username, password) values (?, ?);";

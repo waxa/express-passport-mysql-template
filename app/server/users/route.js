@@ -1,69 +1,79 @@
-function init (app, dbPool, db) {
+function init (app, dbPool, dbquerys) {
   const passport = require('passport');
-  const User = require('mongoose').model('User');
-
-  function isUser(userToFind, callback) {
-    User.findOne( userToFind, "username")
-    .lean()
-    .exec( function (err, user) {
-      if (err) { return callback(err, null); }
-      if (!user || user == null) { return callback(false, false); }
-      return callback(false, true);
-    });
-  }
-
-  function findUser(userToFind, fields, callback) {
-    User.findOne( userToFind, fields)
-    .lean()
-    .exec( function (err, user) {
-      if (err) { return callback(err); }
-      if (!user || user == null) { return callback(false, false); }
-      return callback(false, user);
-    })
-  }
 
   function getUsers (req, res) {
     console.log("GET /users");
-    findUser(req.user, "username password tasks dayStartHour dayStartMin", function (err, user) {
-      if (err || !user) { res.sendStatus(500); }
-      else { res.status(200).json(user); }
+    dbPool.getConnection( function (err, connection) {
+      if (err) {
+        res.sendStatus(500);
+      } else {
+        connection.query(dbquerys.users.selectAll, function (error, results, fields) {
+          connection.release();
+          if (error) {
+            res.sendStatus(500);
+          } else if (results.length == 0) {
+            res.status(200).json([]);
+          } else {
+            var users = [];
+            for (int i = 0, i < results.length; i++) {
+              var aux = {};
+              aux.username = results[i].username;
+              aux.password = results[i].password;
+              users.append(aux);
+            }
+            res.status(200).json(users);
+          }
+        })
+      }
     });
   };
 
   function postUsers (req, res) {
     console.log("POST /users");
-    isUser({
-      username: req.body.username
-    }, function (err, existUser) {
-      if (err) { res.sendStatus(500); }
-      else if (existUser) { res.sendStatus(400); }
-      else {
-        new User({
-          username: req.body.username,
-          password: req.body.password
-        }).save(function (err, userSaved) {
-          if (err) { res.sendStatus(500); }
-          else if (!userSaved) { res.sendStatus(404); }
-          else { res.sendStatus(200); }
-        });
+    dbPool.getConnection( function (err, connection) {
+      if (err) {
+        res.sendStatus(500);
+      } else {
+        connection.query(dbquerys.users.insert, function (error, results, fields) {
+          connection.release();
+          if (error) {
+            res.sendStatus(400);
+          } else {
+            res.sendStatus(201);
+          }
+        })
       }
     });
   };
 
-  function getUsersUsername (req, res) {
+  function getUsersByUsername (req, res) {
     console.log("GET /users/" + req.params.username);
-    isUser({
-      username: req.params.username
-    }, function (err, existUser){
-      if (err) { res.sendStatus(500); }
-      else if (!existUser) { res.sendStatus(404); }
-      else { res.sendStatus(200); }
-    })
+    dbPool.getConnection( function (err, connection) {
+      if (err) {
+        res.sendStatus(500);
+      } else {
+        connection.query(dbquerys.users.selectByUsername, [req.params.username]
+          function (error, results, fields) {
+            connection.release();
+            if (error) {
+              res.sendStatus(500);
+            } else if (results.length != 1) {
+              res.sendStatus(400);
+            } else {
+                var user = {};
+                user.username = results[0].username;
+                user.password = results[0].password;
+              }
+              res.status(200).json(user);
+            }
+          }
+        );
+      }
+    });
   };
 
   app.get('/api/users', passport.authMiddleware(), getUsers);
-  // app.get('/api/users', getUsers);
-  app.get('/api/users/:username',  getUsersUsername);
+  app.get('/api/users/:username', passport.authMiddleware(), getUsersByUsername);
   app.post('/api/users', postUsers);
 };
 

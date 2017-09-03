@@ -1,9 +1,9 @@
-drop database if exists easylistdb;
-drop user if exists 'easylist'@'localhost';
+drop database if exists sampledb;
+drop user if exists 'sampleuser'@'localhost';
 
-create database easylistdb;
-create user 'easylist'@'localhost' identified by 'easylistpwd';
-grant all on easylistdb.* to 'easylist'@'localhost';
+create database sampledb;
+create user 'sampleuser'@'localhost' identified by 'samplepassword';
+grant all on sampledb.* to 'sampleuser'@'localhost';
 
 use easylistdb;
 

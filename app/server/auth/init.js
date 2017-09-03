@@ -4,19 +4,9 @@ const authMiddleware = require('./auth-middleware');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 
-
-// function findUser (userToFind, fields, callback) {
-//   User.findOne( userToFind, fields )
-//   .lean().exec( function (err, user) {
-//     if (err) { return callback(err); }
-//     if (!user) { return callback(null); }
-//     return callback(null, user);
-//   });
-// };
-
-function findUser (username, mysqlPool, dbquerys, callback) {
+function findUser (username, dbPool, dbquerys, callback) {
   console.log("en finduser");
-  mysqlPool.query(dbquerys.users.selectByUsername, [username], function (error, results, fields) {
+  dbPool.query(dbquerys.users.selectByUsername, [username], function (error, results, fields) {
     if (error) {
       return callback(error);
     }
