@@ -1,4 +1,4 @@
 module.exports = {
   app: require('./init'),
-  serverOptions: require('./server').options
+  options: require('./options')
 };

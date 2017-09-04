@@ -1,5 +1,5 @@
 const app = require('./app').app;
-const port = require('./app').serverOptions.serverPort;
+const port = require('./app').options.serverPort;
 
 app.listen(port, function (err) {
   if (err) {
