@@ -9,8 +9,8 @@ const dbPool  = mysql.createPool(db.conf);
 const app = express();
 
 const corsOptions = {
-  origin: 'http://localhost:4200',
-  credentials: true
+  origin: 'http://localhost:8100'
+  // credentials: true
 };
 
 //setUp middleware
@@ -26,6 +26,6 @@ require('./middleware').init(app);
 
 //setUp routes
 require('./auth').route(app); // /login
-// require('./users').route(app); // /users
+require('./users').route(app, dbPool, db); // /users
 
 module.exports = app;

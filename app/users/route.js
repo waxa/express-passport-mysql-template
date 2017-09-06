@@ -15,11 +15,11 @@ function init (app, dbPool, dbquerys) {
             res.status(200).json([]);
           } else {
             var users = [];
-            for (int i = 0, i < results.length; i++) {
+            for (var i = 0; i < results.length; i++) {
               var aux = {};
               aux.username = results[i].username;
               aux.password = results[i].password;
-              users.append(aux);
+              users.push(aux);
             }
             res.status(200).json(users);
           }
@@ -52,7 +52,7 @@ function init (app, dbPool, dbquerys) {
       if (err) {
         res.sendStatus(500);
       } else {
-        connection.query(dbquerys.users.selectByUsername, [req.params.username]
+        connection.query(dbquerys.users.selectByUsername, [req.params.username],
           function (error, results, fields) {
             connection.release();
             if (error) {
@@ -60,12 +60,11 @@ function init (app, dbPool, dbquerys) {
             } else if (results.length != 1) {
               res.sendStatus(400);
             } else {
-                var user = {};
-                user.username = results[0].username;
-                user.password = results[0].password;
-              }
-              res.status(200).json(user);
+              var user = {};
+              user.username = results[0].username;
+              user.password = results[0].password;
             }
+            res.status(200).json(user);
           }
         );
       }
