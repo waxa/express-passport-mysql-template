@@ -15,7 +15,6 @@ function findUser (username, dbPool, dbquerys, callback) {
     }
     var user = {};
     user.username = results[0].username;
-    console.log('user: ', user);
     return callback(null, user);
   });
 };

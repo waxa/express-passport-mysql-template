@@ -12,7 +12,7 @@ function init (app) {
   };
 
   function deleteLogin(req, res) {
-    console.log("DELETE /login", req);
+    console.log("DELETE /login");
     req.logout();
     res.sendStatus(204);
   }
