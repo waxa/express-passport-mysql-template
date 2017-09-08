@@ -3,7 +3,7 @@ function init (app) {
 
   function getLogin(req, res) {
     console.log("GET /login");
-    res.sendStatus(201);
+    res.sendStatus(204);
   };
 
   function postLogin(req, res) {
@@ -12,9 +12,9 @@ function init (app) {
   };
 
   function deleteLogin(req, res) {
-    console.log("DELETE /login");
+    console.log("DELETE /login", req);
     req.logout();
-    res.sendStatus(201);
+    res.sendStatus(204);
   }
 
   app.get('/api/login', passport.authMiddleware(), getLogin);

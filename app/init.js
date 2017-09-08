@@ -9,8 +9,8 @@ const dbPool  = mysql.createPool(db.conf);
 const app = express();
 
 const corsOptions = {
-  origin: 'http://localhost:8100'
-  // credentials: true
+  origin: 'http://localhost:8100',
+  credentials: true
 };
 
 //setUp middleware
