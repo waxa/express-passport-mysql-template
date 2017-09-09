@@ -34,14 +34,18 @@ function init (app, dbPool, dbquerys) {
       if (err) {
         res.sendStatus(500);
       } else {
-        connection.query(dbquerys.users.insert, function (error, results, fields) {
-          connection.release();
-          if (error) {
-            res.sendStatus(400);
-          } else {
-            res.sendStatus(201);
+        connection.query(
+          dbquerys.users.insert,
+          [req.body.username, req.body.password],
+          function (error, results, fields) {
+            connection.release();
+            if (error) {
+              res.sendStatus(400);
+            } else {
+              res.sendStatus(201);
+            }
           }
-        })
+        )
       }
     });
   };

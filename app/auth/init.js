@@ -4,21 +4,6 @@ const authMiddleware = require('./auth-middleware');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 
-function findUser (username, dbPool, dbquerys, callback) {
-  console.log("en finduser");
-  dbPool.query(dbquerys.users.selectByUsername, [username], function (error, results, fields) {
-    if (error) {
-      return callback(error);
-    }
-    if (results.length != 1) {
-      return callback(null);
-    }
-    var user = {};
-    user.username = results[0].username;
-    return callback(null, user);
-  });
-};
-
 function initPassport (app, dbPool, db) {
   var store = new MySQLStore(db.conf, dbPool);
 
@@ -53,7 +38,6 @@ function initPassport (app, dbPool, db) {
       }
       var user = {};
       user.username = results[0].username;
-      console.log('user: ', user);
       return callback(null, user);
     });
   });
@@ -74,7 +58,6 @@ function initPassport (app, dbPool, db) {
           }
           var user = {};
           user.username = results[0].username;
-          console.log('user: ', user);
           return done(null, user);
         }
       );
